@@ -141,7 +141,7 @@
     </Compile>
     <Compile Include="Models\ApplicationUserModel.cs" />
     <Compile Include="Models\LoginViewModel.cs" />
-    <Compile Include="Models\UsersController.cs" />
+    <Compile Include="Controllers\UsersController.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
