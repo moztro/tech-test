@@ -1,0 +1,85 @@
+﻿@model IEnumerable<OneCoreTest.DataAccess.Entities.Security.ApplicationUser>
+@using OneCoreTest.Common.Enums
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Consulta de usuario</h2>
+
+<p>
+    @Html.ActionLink("Alta de usuarios", "Create")
+</p>
+<table class="table table-bordered table-responsive">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Usuario</th>
+            <th>Correo</th>
+            <th>Género</th>
+            <th>Estatus</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Id)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Username)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Email)
+                </td>
+                <td>
+                    <text>@(item.Genre.ToName())</text>
+                </td>
+                <td>
+                    <text>@(item.Status ? "SI" : "NO")</text>
+                </td>
+                <td>
+                    <!-- Allow to delete only if status is Active -->
+                    @if (item.Status)
+                    {
+                        <a href="javascript:deleteItem('@item.Id')" class="btn btn-default" title="Eliminar"><span class="glyphicon glyphicon-trash"></span></a>
+                    }
+                    <a href="@Url.Action("Edit", new { id = item.Id })" class="btn btn-default" title="Editar"><span class="glyphicon glyphicon-edit"></span></a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+@section Styles {
+    @Styles.Render("~/Styles/dataTables")
+}
+
+@section Scripts {
+    @Scripts.Render("~/Scripts/dataTables")
+    <script>
+        $(function () {
+            $('table').DataTable();
+        });
+
+        function deleteItem(id) {
+            if (confirm('Está a punto de eliminar éste registro. Continuar?')) {
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("Delete")',
+                    data: { id: id },
+                    success: function (response) {
+                        window.location.assign("@Url.Action("Index")");
+                    },
+                    error: function (xhr, status) {
+                        alert('Ocurrió un error. Inténte de nuevo.');
+                        console.log(xhr, status);
+                    }
+                });
+            }
+        }
+    </script>
+}
