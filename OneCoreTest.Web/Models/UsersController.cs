@@ -9,10 +9,13 @@ using OneCoreTest.DataAccess.Contexts;
 using System.Threading.Tasks;
 using OneCoreTest.DataAccess.Entities.Security;
 using OneCoreTest.Common.Security;
+using OneCoreTest.Web.Attributes;
+using OneCoreTest.Web.Models;
 
-namespace OneCoreTest.Web.Models
+namespace OneCoreTest.Web.Controllers
 {
-    public class UsersController : Controller
+    [CustomAuthorize]
+    public class UsersController : BaseController
     {
         private IUserRepository usersRepository { get; set; }
 
@@ -95,7 +98,7 @@ namespace OneCoreTest.Web.Models
                 Password = PasswordEncryptor.EncryptPassword(model.Password),
                 Genre = model.Genre,
                 Email = model.Email,
-                CreatedBy = "user",
+                CreatedBy = CurrentUser.Email,
                 CreatedDate = DateTime.Now
             };
 
@@ -151,7 +154,7 @@ namespace OneCoreTest.Web.Models
             old.Password = PasswordEncryptor.EncryptPassword(model.Password);
             old.Genre = model.Genre;
             old.Email = model.Email;
-            old.UpdatedBy = "user";
+            old.UpdatedBy = CurrentUser.Email;
             old.UpdatedDate = DateTime.Now;
 
             // update the object

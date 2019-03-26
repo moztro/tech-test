@@ -1,4 +1,6 @@
-﻿using OneCoreTest.Common.Security;
+﻿using Newtonsoft.Json;
+using OneCoreTest.Common.Constants;
+using OneCoreTest.Common.Security;
 using OneCoreTest.DataAccess.Contexts;
 using OneCoreTest.DataAccess.Entities.Security;
 using OneCoreTest.Services.Implementations;
@@ -10,6 +12,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.Security;
 
 namespace OneCoreTest.Web.Controllers
 {
@@ -37,6 +40,7 @@ namespace OneCoreTest.Web.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<ActionResult> Login(LoginViewModel login)
         {
             if (!ModelState.IsValid)
@@ -61,8 +65,25 @@ namespace OneCoreTest.Web.Controllers
                 return View(login);
             }
 
-            // Store the user data in session
+            // serialize the user data
+            string json = JsonConvert.SerializeObject(user);
 
+            // create the auth ticket
+            FormsAuthentication.SetAuthCookie(user.Email, true);
+            FormsAuthenticationTicket ticket = new FormsAuthenticationTicket(
+                version: 1,
+                name: user.Email,
+                issueDate: DateTime.Now,
+                expiration: DateTime.Now.AddMinutes(120),
+                isPersistent: false,
+                userData: json,
+                cookiePath: FormsAuthentication.FormsCookiePath
+            );
+
+            // encrypt the ticket and create a cookie
+            Response.Cookies.Add(new HttpCookie(SessionConstants.CookieName, FormsAuthentication.Encrypt(ticket)));
+
+            // Success redirect
             return RedirectToAction("Index", "Users");
         }
     }
